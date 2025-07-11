@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Signature Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Email Signature Generator</h1>
+        
+        <form id="signatureForm">
+            <div class="form-group">
+                <label for="fullName">Full Name: <span class="required">*</span></label>
+                <input type="text" id="fullName" placeholder="Lina Ait" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="jobTitle">Job Title: <span class="required">*</span></label>
+                <input type="text" id="jobTitle" placeholder="Software Engineer Level 2-3" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="companyName">Company Name: <span class="required">*</span></label>
+                <select id="companyName" required>
+                    <option value="">Select Company</option>
+                    <option value="b1">B1 - Balcan Innovations Inc. (9340 Rue de Meaux, Saint-Léonard)</option>
+                    <option value="b2">B2 - Balcan Innovations Inc. (9475 Rue de Meaux, Saint-Léonard)</option>
+                    <option value="b3">B3 - Balcan Innovations Inc. (304 Rue Saulnier, Laval)</option>
+                    <option value="b4">B4 - Balcan Innovations Inc. (Drummondville)</option>
+                    <option value="b5">B5 - Balcan Innovations Inc. (Montréal-Est)</option>
+                    <option value="b6">B6 - Covertech Flexible Packaging (Etobicoke)</option>
+                    <option value="b8">B8 - NELMAR Security Packaging Systems (Terrebonne)</option>
+                    <option value="b8_plastixx">B8 - Plastixx FFS Technologies (Terrebonne)</option>
+                    <option value="reflectix">Reflectix Inc (Markleville, IN)</option>
+                    <option value="balcan_innovations">Balcan Innovations Inc (Pleasant Prairie, WI)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone (office number):</label>
+                <input type="text" id="phone" placeholder="450-222-1111">
+            </div>
+            
+            <div class="form-group">
+                <label for="extension">Extension:</label>
+                <input type="text" id="extension" placeholder="308">
+            </div>
+            
+            <div class="form-group">
+                <label for="mobile">Mobile (cell phone number):</label>
+                <input type="text" id="mobile" placeholder="734-000-2000">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email: <span class="required">*</span></label>
+                <input type="email" id="email" placeholder="laitouahmane@balcan.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="website">Website:</label>
+                <input type="text" id="website" readonly>
+            </div>
+            
+            <button type="submit">Generate Signature</button>
+        </form>
+        
+        <div id="signatureOutput" class="signature-output" style="display: none;">
+            <h3>Generated Signature:</h3>
+            <div id="signaturePreview" class="signature-preview"></div>
+            <button class="copy-btn" onclick="copySignature()">Copy Signature</button>
+            <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                <strong>Instructions:</strong> Click "Copy Signature" and paste directly into your email client (Gmail, Outlook, etc.). 
+                The formatting and colors will be preserved. If the formatting doesn't work, select the signature > right click > keep source formatting.
+            </p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
