@@ -34,7 +34,7 @@ const companies = {
         name: "Covertech Flexible Packaging",
         address: "279 Humberline Drive, Etobicoke, ON M9W 5T6",
         website: "www.rfoil.com",
-        color: "#228B22"
+        color: "#228B22" 
     },
     b8: {
         name: "NELMAR Security Packaging Systems",
@@ -46,7 +46,7 @@ const companies = {
         name: "Plastixx FFS Technologies",
         address: "3100 Rue Des Batisseurs, Terrebonne, QC J6Y 0A2",
         website: "www.plastixxffs.com",
-        color: "#A37519"
+        color: "#C3AF5B"
     },
     reflectix: {
         name: "Balcan Innovations Inc.",

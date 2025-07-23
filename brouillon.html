@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Signature Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .language-selector {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .language-selector button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 0 2px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .language-selector button.active {
+            background: #0056b3;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        input[readonly] {
+            background-color: #f8f9fa;
+            color: #666;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .signature-output {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .signature-preview {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-family: Calibri, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .copy-btn {
+            background-color: #28a745;
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+
+        .company-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .phone-container {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .phone-main {
+            flex: 2;
+        }
+
+        .phone-ext {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="language-selector">
+            <button onclick="switchLanguage('en')" id="btn-en" class="active">English</button>
+            <button onclick="switchLanguage('fr')" id="btn-fr">Français</button>
+        </div>
+        
+        <h1 id="title">Email Signature Generator</h1>
+        
+        <form id="signatureForm">
+            <div class="form-group">
+                <label for="fullName" id="label-name">Full Name: <span class="required">*</span></label>
+                <input type="text" id="fullName" placeholder="Olga Konovalova" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="jobTitle" id="label-job">Job Title (English): <span class="required">*</span></label>
+                <input type="text" id="jobTitle" placeholder="Director of Sourcing and Procurement" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="jobTitleFrench" id="label-job-fr">Job Title (French): <span class="required">*</span></label>
+                <input type="text" id="jobTitleFrench" placeholder="Directrice, Approvisionnement et Achats" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="companyName" id="label-company">Company/Division: <span class="required">*</span></label>
+                <select id="companyName" required>
+                    <option value="">Select Company/Division</option>
+                    <option value="balcan">Flexible Packaging Division - Balcan Innovations Inc.</option>
+                    <option value="plastixx">Flexible Packaging Division - Plastixx FFS Technologies</option>
+                    <option value="nelmar">NELMAR Division - NELMAR Security Packaging Systems</option>
+                    <option value="rfoil">Reflective Products Division - rFoil</option>
+                    <option value="reflectix">Reflective Products Division - Reflectix Inc.</option>
+                </select>
+                <div class="company-note" id="company-note">
+                    Don't know which company? Just select "Balcan Innovations Inc." - the system will add the proper division automatically.
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="locationSelect" id="label-location">Location:</label>
+                <select id="locationSelect" disabled>
+                    <option value="">Select Location</option>
+                </select>
+                <div class="company-note" id="location-note">
+                    Select "No specific location" if you work remotely or across multiple locations.
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="address" id="label-address">Address:</label>
+                <input type="text" id="address" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone" id="label-phone">Phone (office):</label>
+                <div class="phone-container">
+                    <div class="phone-main">
+                        <input type="text" id="phone" placeholder="450.477.0001">
+                    </div>
+                    <div class="phone-ext">
+                        <label for="extension" id="label-extension">Extension:</label>
+                        <input type="text" id="extension" placeholder="272">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="mobile" id="label-mobile">Mobile:</label>
+                <input type="text" id="mobile" placeholder="514.123.4567">
+            </div>
+            
+            <div class="form-group">
+                <label for="email" id="label-email">Email: <span class="required">*</span></label>
+                <input type="email" id="email" placeholder="olgak@balcan.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="website" id="label-website">Website:</label>
+                <input type="text" id="website" readonly>
+            </div>
+            
+            <button type="submit" id="btn-generate">Generate Signature</button>
+        </form>
+        
+        <div id="signatureOutput" class="signature-output" style="display: none;">
+            <h3 id="preview-title">Generated Signature:</h3>
+            <div id="signaturePreview" class="signature-preview"></div>
+            <button class="copy-btn" onclick="copySignature()" id="btn-copy">Copy Signature</button>
+        </div>
+    </div>
+
+    <!-- Instructions Modal -->
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title">Instructions</h3>
+            <div id="modal-content">
+                <p><strong id="modal-instruction-title">How to use your signature:</strong></p>
+                <p id="modal-instructions" style="padding-left: 20px; line-height: 1.6;">
+                    <span id="modal-step-6">If the formatting doesn't work → right-click → "Keep Source Formatting"</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLanguage = 'en';
+        
+        const translations = {
+            en: {
+                title: "Email Signature Generator",
+                labelName: "Full Name:",
+                labelJob: "Job Title (English):",
+                labelJobFr: "Job Title (French):",
+                labelCompany: "Company/Division:",
+                labelLocation: "Location:",
+                labelAddress: "Address:",
+                labelPhone: "Phone (office):",
+                labelExtension: "Extension:",
+                labelMobile: "Mobile:",
+                labelEmail: "Email:",
+                labelWebsite: "Website:",
+                btnGenerate: "Generate Signature",
+                previewTitle: "Generated Signature:",
+                btnCopy: "Copy Signature",
+                companyNote: "Don't know which company? Just select \"Balcan Innovations Inc.\" - the system will add the proper division automatically.",
+                locationNote: "Select \"No specific location\" if you work remotely or across multiple locations.",
+                modalTitle: "Instructions",
+                modalInstructionTitle: "How to use your signature:",
+                modalStep1: "Your signature has been generated successfully!",
+                modalStep2: "Close this popup to view your signature",
+                modalStep3: "Click \"Copy Signature\" to copy it to your clipboard",
+                modalStep4: "Open your email client (Gmail, Outlook, etc.)",
+                modalStep5: "Go to signature settings and paste (Ctrl+V or Cmd+V)",
+                modalStep6: "If the formatting doesn't work → right-click → \"Keep Source Formatting\"",
+                placeholderName: "Olga Konovalova",
+                placeholderJobEn: "Director of Sourcing and Procurement",
+                placeholderJobFr: "Directrice, Approvisionnement et Achats",
+                placeholderEmail: "olgak@balcan.com",
+                selectCompany: "Select Company/Division",
+                selectLocation: "Select Location",
+                noLocation: "No specific location"
+            },
+            fr: {
+                title: "Générateur de Signature Courriel",
+                labelName: "Nom Complet:",
+                labelJob: "Titre de Poste (Anglais):",
+                labelJobFr: "Titre de Poste (Français):",
+                labelCompany: "Compagnie/Division:",
+                labelLocation: "Emplacement:",
+                labelAddress: "Adresse:",
+                labelPhone: "Téléphone (bureau):",
+                labelExtension: "Extension:",
+                labelMobile: "Mobile:",
+                labelEmail: "Courriel:",
+                labelWebsite: "Site Web:",
+                btnGenerate: "Générer la Signature",
+                previewTitle: "Signature Générée:",
+                btnCopy: "Copier la Signature",
+                companyNote: "Vous ne savez pas quelle compagnie? Sélectionnez simplement \"Balcan Innovations Inc.\" - le système ajoutera automatiquement la division appropriée.",
+                locationNote: "Sélectionnez \"Aucun emplacement spécifique\" si vous travaillez à distance ou dans plusieurs emplacements.",
+                modalTitle: "Instructions",
+                modalInstructionTitle: "Comment utiliser votre signature:",
+                modalStep1: "Votre signature a été générée avec succès!",
+                modalStep2: "Fermez cette popup pour voir votre signature",
+                modalStep3: "Cliquez sur \"Copier la Signature\" pour la copier dans le presse-papiers",
+                modalStep4: "Ouvrez votre client de messagerie (Gmail, Outlook, etc.)",
+                modalStep5: "Allez dans les paramètres de signature et collez (Ctrl+V ou Cmd+V)",
+                modalStep6: "Si le formatage ne fonctionne pas → clic droit → \"Conserver le formatage source\"",
+                placeholderName: "Olga Konovalova",
+                placeholderJobEn: "Director of Sourcing and Procurement",
+                placeholderJobFr: "Directrice, Approvisionnement et Achats",
+                placeholderEmail: "olgak@balcan.com",
+                selectCompany: "Sélectionner Compagnie/Division",
+                selectLocation: "Sélectionner Emplacement",
+                noLocation: "Aucun emplacement spécifique"
+            }
+        };
+
+        // Company data with locations and automatic division mapping
+        const companies = {
+            balcan: {
+                divisionName: "Flexible Packaging Division - Balcan Innovations",
+                website: "www.balcaninnovations.com",
+                color: "#FF6303",
+                locations: {
+                    "no-location": {
+                        name: "No specific location",
+                        address: ""
+                    },
+                    "saint-leonard-9340": {
+                        name: "Saint-Léonard (9340 Rue de Meaux)",
+                        address: "9340 Rue de Meaux, Saint-Léonard, QC H1R 3H2"
+                    },
+                    "saint-leonard-9475": {
+                        name: "Saint-Léonard (9475 Rue de Meaux)",
+                        address: "9475 Rue de Meaux, Saint-Léonard, QC H1R 3H2"
+                    },
+                    "laval": {
+                        name: "Laval, QC",
+                        address: "304 Rue Saulnier, Laval, QC H7M 3T3"
+                    },
+                    "drummondville": {
+                        name: "Drummondville, QC",
+                        address: "2540 route 139, Drummondville, QC J2A 2P9"
+                    },
+                    "terrebonne": {
+                        name: "Terrebonne, QC",
+                        address: "3100 Rue Des Batisseurs, Terrebonne, QC J6Y 0A2"
+                    },
+                    "montreal-est": {
+                        name: "Montréal-Est, QC",
+                        address: "8300 Pl. Marien, Montréal-Est, QC H1B 5W6"
+                    },
+                    "etobicoke": {
+                        name: "Etobicoke, ON",
+                        address: "279 Humberline Drive, Etobicoke, ON M9W 5T6"
+                    },
+                    "pleasant-prairie": {
+                        name: "Pleasant Prairie, WI",
+                        address: "7210 108th St. Pleasant Prairie, WI 53158, United States"
+                    },
+                    "markleville": {
+                        name: "Markleville, IN",
+                        address: "1 School St, Markleville, IN 46056, United States"
+                    }
+                }
+            },
+            plastixx: {
+                divisionName: "Flexible Packaging Division - Balcan Innovations",
+                website: "www.plastixxffs.com",
+                color: "#C3AF5B",
+                locations: {
+                    "no-location": {
+                        name: "No specific location",
+                        address: ""
+                    },
+                    "terrebonne": {
+                        name: "Terrebonne, QC",
+                        address: "3100 Rue Des Batisseurs, Terrebonne, QC J6Y 0A2"
+                    }
+                }
+            },
+            nelmar: {
+                divisionName: "NELMAR Division - Balcan Innovations",
+                website: "www.nelmar.com",
+                color: "#E60A02",
+                locations: {
+                    "no-location": {
+                        name: "No specific location",
+                        address: ""
+                    },
+                    "terrebonne": {
+                        name: "Terrebonne, QC",
+                        address: "3100 Rue Des Batisseurs, Terrebonne, QC J6Y 0A2"
+                    }
+                }
+            },
+            rfoil: {
+                divisionName: "Reflective Products Division - Balcan Innovations",
+                website: "www.rfoil.com",
+                color: "#FF6303",
+                locations: {
+                    "no-location": {
+                        name: "No specific location",
+                        address: ""
+                    },
+                    "etobicoke": {
+                        name: "Etobicoke, ON",
+                        address: "279 Humberline Drive, Etobicoke, ON M9W 5T6"
+                    }
+                }
+            },
+            reflectix: {
+                divisionName: "Reflective Products Division - Balcan Innovations",
+                website: "www.reflectixinc.com",
+                color: "#FF6303",
+                locations: {
+                    "no-location": {
+                        name: "No specific location",
+                        address: ""
+                    },
+                    "markleville": {
+                        name: "Markleville, IN",
+                        address: "1 School St, Markleville, IN 46056, United States"
+                    }
+                }
+            }
+        };
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Update active button
+            document.querySelectorAll('.language-selector button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`btn-${lang}`).classList.add('active');
+            
+            // Update text content
+            const t = translations[lang];
+            document.getElementById('title').textContent = t.title;
+            document.getElementById('label-name').innerHTML = t.labelName + ' <span class="required">*</span>';
+            document.getElementById('label-job').innerHTML = t.labelJob + ' <span class="required">*</span>';
+            document.getElementById('label-job-fr').innerHTML = t.labelJobFr + ' <span class="required">*</span>';
+            document.getElementById('label-company').innerHTML = t.labelCompany + ' <span class="required">*</span>';
+            document.getElementById('label-location').textContent = t.labelLocation;
+            document.getElementById('label-address').textContent = t.labelAddress;
+            document.getElementById('label-phone').textContent = t.labelPhone;
+            document.getElementById('label-extension').textContent = t.labelExtension;
+            document.getElementById('label-mobile').textContent = t.labelMobile;
+            document.getElementById('label-email').innerHTML = t.labelEmail + ' <span class="required">*</span>';
+            document.getElementById('label-website').textContent = t.labelWebsite;
+            document.getElementById('btn-generate').textContent = t.btnGenerate;
+            document.getElementById('preview-title').textContent = t.previewTitle;
+            document.getElementById('btn-copy').textContent = t.btnCopy;
+            document.getElementById('company-note').textContent = t.companyNote;
+            document.getElementById('location-note').textContent = t.locationNote;
+            document.getElementById('modal-title').textContent = t.modalTitle;
+            document.getElementById('modal-instruction-title').textContent = t.modalInstructionTitle;
+            document.getElementById('modal-step-6').textContent = t.modalStep6;
+            
+            // Update placeholders
+            document.getElementById('fullName').placeholder = t.placeholderName;
+            document.getElementById('jobTitle').placeholder = t.placeholderJobEn;
+            document.getElementById('jobTitleFrench').placeholder = t.placeholderJobFr;
+            document.getElementById('email').placeholder = t.placeholderEmail;
+            
+            // Update select options
+            document.querySelector('#companyName option[value=""]').textContent = t.selectCompany;
+            document.querySelector('#locationSelect option[value=""]').textContent = t.selectLocation;
+            
+            // Update "No specific location" option if it exists
+            const noLocationOption = document.querySelector('#locationSelect option[value="no-location"]');
+            if (noLocationOption) {
+                noLocationOption.textContent = t.noLocation;
+            }
+        }
+
+        // Font size adjustment function
+        function adjustFontSize(originalSize) {
+            return Math.round(originalSize * 1.3);
+        }
+
+        // Phone number formatting function (simplified for dots only)
+        function formatPhoneNumber(value) {
+            const digitsOnly = value.replace(/\D/g, '');
+            
+            if (digitsOnly.length <= 3) {
+                return digitsOnly;
+            } else if (digitsOnly.length <= 6) {
+                return digitsOnly.replace(/(\d{3})(\d{0,3})/, '$1.$2');
+            } else {
+                return digitsOnly.replace(/(\d{3})(\d{3})(\d{0,4})/, '$1.$2.$3');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('signatureForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateSignature();
+            // Show the instructions modal after generating signature
+            showInstructions();
+        });
+
+        // Auto-populate locations when company is selected
+        document.getElementById('companyName').addEventListener('change', function() {
+            const selectedCompany = this.value;
+            const locationSelect = document.getElementById('locationSelect');
+            const addressField = document.getElementById('address');
+            const websiteField = document.getElementById('website');
+            
+            // Clear previous selections
+            locationSelect.innerHTML = `<option value="">${translations[currentLanguage].selectLocation}</option>`;
+            addressField.value = '';
+            websiteField.value = '';
+            
+            if (selectedCompany && companies[selectedCompany]) {
+                // Enable location selector and populate with locations
+                locationSelect.disabled = false;
+                const company = companies[selectedCompany];
+                
+                // Add location options
+                Object.keys(company.locations).forEach(locationKey => {
+                    const location = company.locations[locationKey];
+                    const option = document.createElement('option');
+                    option.value = locationKey;
+                    option.textContent = locationKey === 'no-location' ? 
+                        translations[currentLanguage].noLocation : location.name;
+                    locationSelect.appendChild(option);
+                });
+                
+                // Set website
+                websiteField.value = company.website;
+            } else {
+                // Disable location selector if no company selected
+                locationSelect.disabled = true;
+            }
+        });
+
+        // Auto-populate address when location is selected
+        document.getElementById('locationSelect').addEventListener('change', function() {
+            const selectedCompany = document.getElementById('companyName').value;
+            const selectedLocation = this.value;
+            const addressField = document.getElementById('address');
+            
+            if (selectedCompany && selectedLocation && companies[selectedCompany]) {
+                const location = companies[selectedCompany].locations[selectedLocation];
+                if (location) {
+                    addressField.value = location.address;
+                }
+            } else {
+                addressField.value = '';
+            }
+        });
+
+        // Phone number formatting
+        ['phone', 'mobile'].forEach(fieldId => {
+            document.getElementById(fieldId).addEventListener('input', function(e) {
+                const input = e.target;
+                const cursorPosition = input.selectionStart;
+                const oldLength = input.value.length;
+                
+                const formattedValue = formatPhoneNumber(input.value);
+                input.value = formattedValue;
+                
+                const newLength = formattedValue.length;
+                const lengthDiff = newLength - oldLength;
+                const newCursorPosition = cursorPosition + lengthDiff;
+                input.setSelectionRange(newCursorPosition, newCursorPosition);
+            });
+        });
+
+        function generateSignature() {
+            const fullName = document.getElementById('fullName').value;
+            const jobTitleEn = document.getElementById('jobTitle').value;
+            const jobTitleFr = document.getElementById('jobTitleFrench').value;
+            const companyKey = document.getElementById('companyName').value;
+            const locationKey = document.getElementById('locationSelect').value;
+            const company = companies[companyKey];
+            const phone = document.getElementById('phone').value;
+            const extension = document.getElementById('extension').value;
+            const mobile = document.getElementById('mobile').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const website = document.getElementById('website').value;
+
+            if (!company) {
+                alert(currentLanguage === 'en' ? 'Please select a company' : 'Veuillez sélectionner une compagnie');
+                return;
+            }
+
+            // Base font sizes (all multiplied by 1.3)
+            const nameFontSize = adjustFontSize(12);
+            const companyFontSize = adjustFontSize(11);
+            const addressFontSize = adjustFontSize(11);
+            const contactFontSize = adjustFontSize(11);
+            const websiteFontSize = adjustFontSize(11);
+
+            // Generate the signature HTML with bilingual job title and proper division
+            let signatureHTML = `<div style="font-family: Calibri, sans-serif; line-height: 1.1; margin: 0; padding: 0;">
+<div style="font-weight: bold; color: rgb(102, 102, 102); font-size: ${nameFontSize}px; margin: 0; padding: 0;">
+${fullName.toUpperCase()} | <span style="font-weight: normal;">${jobTitleEn} / ${jobTitleFr}</span>
+</div>
+<div style="color: ${company.color}; font-weight: bold; font-size: ${companyFontSize}px; margin: 0; padding: 0;">
+${company.divisionName}
+</div>`;
+
+            // Add address only if location is selected (not "no-location")
+            if (address && locationKey !== 'no-location') {
+                signatureHTML += `<div style="color: rgb(153, 153, 153); font-size: ${addressFontSize}px; margin: 0; padding: 0;">
+${address}
+</div>`;
+            }
+
+            // Build the contact line
+            let contactLine = '';
+            if (phone) {
+                contactLine += `T: ${phone}`;
+                if (extension) {
+                    contactLine += ` (ext. ${extension})`;
+                }
+            }
+            if (mobile) {
+                contactLine += phone ? ` | M: ${mobile}` : `M: ${mobile}`;
+            }
+            if (phone || mobile) {
+                contactLine += ` | `;
+            }
+            contactLine += `<a href="mailto:${email}" style="color: rgb(153, 153, 153); text-decoration: none;">${email}</a>`;
+
+            signatureHTML += `<div style="color: rgb(153, 153, 153); font-size: ${contactFontSize}px; margin: 0; padding: 0;">
+${contactLine}
+</div>`;
+
+            // Handle website
+            signatureHTML += `<div style="color: rgb(153, 153, 153); font-size: ${websiteFontSize}px; margin: 0; padding: 0;">
+<a href="http://${website}" style="color: rgb(153, 153, 153); text-decoration: none;">${website}</a>
+</div>`;
+
+            signatureHTML += `</div>`;
+
+            // Display the signature
+            document.getElementById('signaturePreview').innerHTML = signatureHTML;
+            document.getElementById('signatureOutput').style.display = 'block';
+        }
+
+        function showInstructions() {
+            document.getElementById('instructionsModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('instructionsModal').style.display = 'none';
+        }
+
+        function copySignature() {
+            const signatureElement = document.getElementById('signaturePreview');
+            
+            // Create a temporary container
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = signatureElement.innerHTML;
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            document.body.appendChild(tempContainer);
+            
+            try {
+                // Use the modern clipboard API if available
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    const htmlBlob = new Blob([signatureElement.innerHTML], { type: 'text/html' });
+                    const textBlob = new Blob([signatureElement.innerText], { type: 'text/plain' });
+                    
+                    const clipboardItem = new ClipboardItem({
+                        'text/html': htmlBlob,
+                        'text/plain': textBlob
+                    });
+                    
+                    navigator.clipboard.write([clipboardItem]).then(() => {
+                        alert(currentLanguage === 'en' ? 
+                            'Signature copied! You can now paste it directly into your email client.' :
+                            'Signature copiée! Vous pouvez maintenant la coller dans votre client de messagerie.');
+                    }).catch(() => {
+                        fallbackCopy();
+                    });
+                } else {
+                    fallbackCopy();
+                }
+            } catch (err) {
+                fallbackCopy();
+            } finally {
+                document.body.removeChild(tempContainer);
+            }
+        }
+
+        function fallbackCopy() {
+            const signatureElement = document.getElementById('signaturePreview');
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = signatureElement.innerHTML;
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            document.body.appendChild(tempDiv);
+            
+            const range = document.createRange();
+            range.selectNodeContents(tempDiv);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert(currentLanguage === 'en' ? 
+                        'Signature copied! You can now paste it directly into your email client.' :
+                        'Signature copiée! Vous pouvez maintenant la coller dans votre client de messagerie.');
+                } else {
+                    alert(currentLanguage === 'en' ? 'Copy failed.' : 'Échec de la copie.');
+                }
+            } catch (err) {
+                alert(currentLanguage === 'en' ? 'Copy failed.' : 'Échec de la copie.');
+            } finally {
+                selection.removeAllRanges();
+                document.body.removeChild(tempDiv);
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('instructionsModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            switchLanguage('en');
+        });
+    </script>
+</body>
+</html>
